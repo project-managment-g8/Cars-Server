@@ -1,0 +1,27 @@
+// server/server.js
+import express from 'express';
+import bodyParser from 'body-parser';
+import userRoutes from './routes/userRoutes.js';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const app = express();
+const port = process.env.PORT || 5001;
+
+app.use(bodyParser.json());
+
+// Ping endpoint
+app.get('/ping', (req, res) => {
+  res.send('pong <G8>');
+});
+
+// About endpoint (just for client-side routing)
+app.get('/about', (req, res) => {
+  res.send('A platform that connects vehicle enthusiasts and people interested in the automotive world. Users can share photos of vehicles, discuss repairs and upgrades, receive maintenance tips, and organize meetings and events in the automotive field. Any user will be able to post reviews on spare parts, recommend garages, and share travel experiences.');
+});
+app.use('/api/users',userRoutes) 
+
+// Start the server and listen on the specified port
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
