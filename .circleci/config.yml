@@ -9,8 +9,6 @@ workflows:
 
 jobs:
   build:
-    docker:
-      - image: circleci/node:18.18.0  # Use a compatible Node.js 18 image
     steps:
       - checkout
       - run:
