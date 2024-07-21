@@ -1,31 +1,24 @@
+# This config was automatically generated from your source code
+# Stacks detected: deps:node:.
 version: 2.1
-
 orbs:
   node: circleci/node@5
 
-jobs:
-  build:
-    executor: node-executor
-    steps:
-      - checkout
-      - run:
-          name: Clean npm cache
-          command: npm cache clean --force
-      - run:
-          name: Install dependencies
-          command: npm install
-      - run:
-          name: Verify Node.js and npm versions
-          command: node -v && npm -v
-      - run:
-          name: Run tests
-          command: npm run test
-      - run:
-          name: Run lint
-          command: npm run lint
-
 workflows:
-  version: 2
   my-workflow:
     jobs:
-      - build
+      - build 
+jobs:
+  build:
+    executor : node/default
+    steps:
+      - checkout
+      - run :
+        name : install dependencies
+        command : npm install
+      - run :
+        name : run tests
+        command : npm run test
+      - run :
+        name : run lint
+        command : npm run lint  
