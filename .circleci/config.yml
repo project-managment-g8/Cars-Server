@@ -10,8 +10,7 @@ workflows:
       - build 
 jobs:
   build:
-    executor : 
-      name: node/default
+    executor : node/default
     steps:
       - checkout
       - run :
