@@ -1,12 +1,15 @@
 version: 2.1
 orbs:
   node: circleci/node@5
+
 workflows:
   my-workflow:
     jobs:
       - build
+
 jobs:
   build:
+    executor: node/default  # Use the default Node.js executor from the orb
     steps:
       - checkout
       - run:
