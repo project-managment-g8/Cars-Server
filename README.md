@@ -21,10 +21,10 @@ A platform that connects vehicle enthusiasts and people interested in the automo
          npm install
 ###Running the Project
 Start the development server:
-    npm start
+   npm start
 
 ###Linting
-     npm run lint
+   npm run lint
 
 ###Testing
-     npm test
+   npm test
