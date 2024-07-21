@@ -11,20 +11,36 @@ A platform that connects vehicle enthusiasts and people interested in the automo
 - Node.js (version 14 or higher)
 - npm (version 6 or higher)
 
-### Installation
+## Installation
 
-1. Clone the repository:
-   
-   git clone https://github.com/project-managment-g8/Cars-Server
-   cd server 
-2. Install dependencies:
-         npm install
-###Running the Project
+Clone the repository:
+
+```bash
+git clone https://github.com/project-managment-g8/Cars-Server
+cd server
+```
+
+
+
+Install dependencies:
+
+```bash
+      npm install
+```
+
 Start the development server:
-   npm start
 
-###Linting:
-   npm run lint
+```bash
+    npm start
+```
 
-###Testing:
-   npm test
+Linting:
+
+```bash
+     npm run lint
+```
+
+Testing
+```bash
+     npm test
+```
