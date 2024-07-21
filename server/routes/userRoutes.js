@@ -3,6 +3,6 @@ import express from 'express';
 const router = express.Router();
 import { login } from '../userContoller/userController.js';
 
-router.post("/", login)
+router.post('/', login);
 
 export default router;
