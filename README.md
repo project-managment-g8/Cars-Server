@@ -23,8 +23,8 @@ A platform that connects vehicle enthusiasts and people interested in the automo
 Start the development server:
    npm start
 
-###Linting
+###Linting:
    npm run lint
 
-###Testing
+###Testing:
    npm test
