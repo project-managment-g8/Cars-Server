@@ -9,6 +9,7 @@
     "server": "nodemon server/server.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "test": "mocha server/test/ping.test.mjs",
     "data:import": "node server/seeder.js",
     "data:destroy": "node server/seeder.js -d",
     "build": "npm install && npm install --prefix client && npm run build --prefix client"
@@ -29,6 +30,11 @@
     "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "chai": "^5.1.1",
+    "chai-http": "^5.0.0",
+    "concurrently": "^8.2.2",
+    "esm": "^3.2.25",
+    "mocha": "^10.6.0",
+    "supertest": "^7.0.0"
   }
 }
