@@ -9,15 +9,21 @@ const port = process.env.PORT || 5001;
 
 app.use(bodyParser.json());
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.send('Welcome to the Vehicle Social Platform API!');
+});
+
 // Ping endpoint
 app.get('/ping', (req, res) => {
   res.send('pong <G8>');
 });
 
-// About endpoint (just for client-side routing)
+// About endpoint
 app.get('/about', (req, res) => {
   res.send('A platform that connects vehicle enthusiasts and people interested in the automotive world. Users can share photos of vehicles, discuss repairs and upgrades, receive maintenance tips, and organize meetings and events in the automotive field. Any user will be able to post reviews on spare parts, recommend garages, and share travel experiences.');
 });
+
 app.use('/api/users', userRoutes);
 
 // Start the server and listen on the specified port
