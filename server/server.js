@@ -1,6 +1,5 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import cors from 'cors'; // Import cors
 import userRoutes from './routes/userRoutes.js';
 import dotenv from 'dotenv';
 
@@ -10,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 5001;
 
 app.use(bodyParser.json());
-app.use(cors()); // Use cors
+
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -28,6 +27,7 @@ app.get('/about', (req, res) => {
 });
 
 app.use('/api/users', userRoutes);
+
 
 // Start the server and listen on the specified port
 app.listen(port, () => {
