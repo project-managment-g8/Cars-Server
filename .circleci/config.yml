@@ -16,11 +16,6 @@ jobs:
       - run:
           name: Clear Docker image cache
           command: docker system prune -a
-      - setup_remote_docker:
-          version: 20.10.7
-      - run:
-          name: Pull Docker image
-          command: docker pull circleci/node:18
       - run:
           name: Clean npm cache
           command: npm cache clean --force
