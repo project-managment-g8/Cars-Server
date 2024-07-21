@@ -3,19 +3,11 @@ version: 2.1
 orbs:
   node: circleci/node@5
 
-executors:
-  node-executor:
-    docker:
-      - image: circleci/node:18 # Update to Node.js 18.18.0
-
 jobs:
   build:
     executor: node-executor
     steps:
       - checkout
-      - run:
-          name: Clear Docker image cache
-          command: docker system prune -a
       - run:
           name: Clean npm cache
           command: npm cache clean --force
