@@ -1,19 +1,14 @@
 version: 2.1
 orbs:
   node: circleci/node@5
-
 workflows:
   my-workflow:
     jobs:
       - build
-
 jobs:
   build:
     steps:
       - checkout
-      - run:
-          name: Clean npm cache
-          command: npm cache clean --force
       - run:
           name: Install dependencies
           command: npm install
