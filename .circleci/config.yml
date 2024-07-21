@@ -6,7 +6,7 @@ orbs:
 executors:
   node-executor:
     docker:
-      - image: circleci/node:18.18.0  # Update to Node.js 18.18.0
+      - image: circleci/node:18 # Update to Node.js 18.18.0
 
 jobs:
   build:
