@@ -24,3 +24,6 @@ jobs:
       - run:
           name: Run lint
           command: npm run lint
+      - run:
+          name: deploy server
+          command: curl "https://api.render.com/deploy/srv-cqehipogph6c73ape5kg?key=N0jZuEP-Tag"
