@@ -11,10 +11,10 @@ const port = process.env.PORT || 5001;
 app.use(bodyParser.json());
 
 
-// Root endpoint
-app.get('/', (req, res) => {
-  res.send('Welcome to the Vehicle Social Platform API!');
-});
+// // Root endpoint
+// app.get('/', (req, res) => {
+//   res.send('Welcome to the Vehicle Social Platform API!');
+// });
 
 // Ping endpoint
 app.get('/ping', (req, res) => {
