@@ -1,9 +1,8 @@
 // server/models/userModel.js
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import path from "path";
 
-// const defaultImagePath = path.join(__dirname, "../uploads/defaultprofile.png");
+const defaultImagePath = "../uploads/defaultprofile.png";
 const userSchema = new mongoose.Schema(
   {
     userName: {
@@ -16,7 +15,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true },
     password: { type: String, required: true },
     is_admin: { type: Boolean, required: true, default: false },
-    // img: { type: String, required: false, default: defaultImagePath },
+    img: { type: String, required: false, default: defaultImagePath },
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     category: { type: String, required: false },

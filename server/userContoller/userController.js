@@ -1,32 +1,32 @@
 // server/userController/userController.js
 import User from "../models/userModel.js";
-const users = [
-  {
-    name: "John",
-    id: 1,
-    email: "test@example.com",
-    password: "Password1!", // Ensure the password meets validation criteria
-  },
-];
+import generateToken from "../utils/generateToken.js";
 
 // @desc login user
 // @route POST /api/users/login
 // @access public
 
-const login = async (req, res, next) => {
+const login = async (req, res) => {
   const { email, password } = req.body;
-  console.log(email, password);
-  // Find the user by email
-  const user = users.find((user) => user.email === email);
 
-  // Validate user credentials
-  if (user && user.password === password) {
-    res.json({
-      success: true,
-      userName: user.name,
-    });
-  } else {
-    res.status(401).json({ success: false, message: "Invalid credentials" });
+  try {
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    // Check if user exists and validate password
+    if (user && (await user.matchpassword(password))) {
+      generateToken(res, user._id);
+      res.json({
+        success: true,
+        userName: user.userName,
+        email: user.email,
+        _id: user._id,
+      });
+    } else {
+      res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 const registerUser = async (req, res, next) => {
@@ -45,12 +45,15 @@ const registerUser = async (req, res, next) => {
       password,
     });
     console.log("user details" + email + userName + password);
+
     if (user) {
+      generateToken(res, user._id);
       console.log("create new user");
       res.status(200).json({
         success: true,
         userName: user.userName,
         email: user.email,
+        _id: user._id,
       });
     } else {
       res.status(400).json({ success: false, message: "Invalid user data" });
