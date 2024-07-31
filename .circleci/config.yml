@@ -20,7 +20,7 @@ jobs:
           command: node -v && npm -v
       - run:
           name: Verify file structure
-          command: ls -al server/controller
+          command: ls -al server/Controller
       - run:
           name: Run tests
           command: npm run test

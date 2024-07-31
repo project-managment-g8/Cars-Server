@@ -1,6 +1,6 @@
 // server/routes/postRoutes.js
 import express from "express";
-import { createPost, getPosts } from "../controller/postController.js";
+import { createPost, getPosts } from "../Controller/postController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import multer from "multer";
 import { GridFsStorage } from "multer-gridfs-storage";
