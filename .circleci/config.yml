@@ -19,6 +19,9 @@ jobs:
           name: Verify Node.js and npm versions
           command: node -v && npm -v
       - run:
+          name: Verify file structure
+          command: ls -al server/controller
+      - run:
           name: Run tests
           command: npm run test
       - run:
