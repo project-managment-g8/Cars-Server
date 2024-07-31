@@ -9,12 +9,12 @@ workflows:
 
 jobs:
   build:
-    executor: node/default  # Use the default Node.js executor from the orb
+    executor: node/default # Use the default Node.js executor from the orb
     steps:
       - checkout
       - run:
           name: Install dependencies
-          command: npm install
+          command: npm install --legacy-peer-deps
       - run:
           name: Verify Node.js and npm versions
           command: node -v && npm -v
