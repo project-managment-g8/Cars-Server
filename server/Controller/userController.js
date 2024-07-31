@@ -1,32 +1,7 @@
-// server/Controller/userController.js
 import User from "../models/userModel.js";
 import generateToken from "../utils/generateToken.js";
-import mongoose from "mongoose";
 
-const login = async (req, res) => {
-  const { email, password } = req.body;
-  console.log(email);
-  try {
-    // Find the user by email
-    const user = await User.findOne({ email });
-    // Check if user exists and validate password
-    if (user && (await user.matchpassword(password))) {
-      console.log("JWT Secret Key:", process.env.JWT_SECRET);
-      generateToken(res, user._id);
-      res.json({
-        success: true,
-        userName: user.userName,
-        email: user.email,
-        _id: user._id,
-      });
-    } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Server error" + error });
-  }
-};
+// Register user
 const registerUser = async (req, res, next) => {
   const { userName, email, password } = req.body;
   try {
@@ -36,17 +11,16 @@ const registerUser = async (req, res, next) => {
       res.status(400).json({ success: false, message: "User already exists" });
       return;
     }
+
     // Create a new user
     const user = await User.create({
       userName,
       email,
-      password,
+      password: password,
     });
-    console.log("user details" + email + userName + password);
 
     if (user) {
       generateToken(res, user._id);
-      console.log("create new user");
       res.status(200).json({
         success: true,
         userName: user.userName,
@@ -60,12 +34,91 @@ const registerUser = async (req, res, next) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+// Login user
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    // Find the user by email
+    const user = await User.findOne({ email });
+    // Check if user exists and validate password
+    if (user && password === user.password) {
+      generateToken(res, user._id);
+      res.json({
+        success: true,
+        userName: user.userName,
+        email: user.email,
+        _id: user._id,
+      });
+    } else {
+      res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Change password
+const changePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = oldPassword === user.password;
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid old password" });
+    }
+
+    // Debugging log for the hashed password
+    user.password = newPassword;
+    await user.save();
+
+    // Confirm password is saved correctly
+    const updatedUser = await User.findById(req.user._id);
+    console.log("Updated user password:", updatedUser.password);
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Delete user and log out
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+      await User.deleteOne({ _id: req.user._id });
+
+      // Clear the token from cookies
+      res.cookie("token", "", {
+        httpOnly: true,
+        expires: new Date(0),
+      });
+
+      res.json({ success: true, message: "User removed and logged out" });
+    } else {
+      console.error("User not found for deletion.");
+      res.status(404).json({ success: false, message: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error during user deletion:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Get user profile
 const getUserProfile = async (req, res) => {
   try {
-    console.log("User from token:", req.user); // Log user from token
     const user = await User.findById(req.user._id);
     if (user) {
-      console.log("User profile:", user); // Log user profile
       res.json({
         _id: user._id,
         userName: user.userName,
@@ -74,25 +127,23 @@ const getUserProfile = async (req, res) => {
         following: user.following,
       });
     } else {
-      console.log("User not found"); // Log if user not found
       res.status(404).json({ message: "User not found" });
     }
   } catch (error) {
-    console.error("Server error:", error); // Log server error
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// Update user profile
 const updateUserProfile = async (req, res) => {
   const { userName, email, img } = req.body;
-
-  console.log("User from token:", req.user); // Check if req.user is set
 
   try {
     if (!req.user || !req.user._id) {
       return res.status(401).json({ message: "Not authorized" });
     }
 
-    const user = await User.findById(req.user._id); // Correctly find user by ID
+    const user = await User.findById(req.user._id);
 
     if (user) {
       user.userName = userName || user.userName;
@@ -112,9 +163,15 @@ const updateUserProfile = async (req, res) => {
       res.status(404).json({ message: "User not found" });
     }
   } catch (error) {
-    console.error("Error updating user profile:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-export { login, registerUser, getUserProfile, updateUserProfile };
+export {
+  login,
+  registerUser,
+  getUserProfile,
+  updateUserProfile,
+  deleteUser,
+  changePassword,
+};

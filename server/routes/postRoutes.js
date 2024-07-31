@@ -1,6 +1,11 @@
 // server/routes/postRoutes.js
 import express from "express";
-import { createPost, getPosts } from "../Controller/postController.js";
+import {
+  createPost,
+  getPosts,
+  likePost,
+  deletePost,
+} from "../Controller/postController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import multer from "multer";
 import { GridFsStorage } from "multer-gridfs-storage";
@@ -25,5 +30,7 @@ const upload = multer({ storage });
 
 router.route("/").get(getPosts);
 router.route("/post").post(protect, upload.single("image"), createPost);
+router.route("/:id/like").put(protect, likePost);
+router.route("/:id").delete(protect, deletePost);
 
 export default router;

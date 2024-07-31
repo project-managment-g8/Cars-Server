@@ -7,6 +7,8 @@ import {
   registerUser,
   getUserProfile,
   updateUserProfile,
+  deleteUser,
+  changePassword,
 } from "../Controller/userController.js";
 
 router.get("/:id", protect, getUserProfile);
@@ -15,5 +17,9 @@ router.post("/register", registerUser);
 router
   .route("/profile")
   .get(protect, getUserProfile)
-  .put(protect, updateUserProfile);
+  .put(protect, updateUserProfile)
+  .delete(protect, deleteUser);
+
+router.route("/change-password").put(protect, changePassword);
+
 export default router;
