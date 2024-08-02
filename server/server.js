@@ -2,10 +2,12 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
+import forumRoutes from "./routes/forumRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
+import commentRoutes from "./routes/commentRoutes.js";
 import dotenv from "dotenv";
 import path from "path";
 import mongoose from "mongoose";
@@ -70,7 +72,8 @@ app.post("/upload", upload.single("image"), (req, res) => {
 
 // Route to fetch images from GridFS
 app.use("/api/uploads", imageRoutes);
-
+app.use("/api/forum", forumRoutes);
+app.use("/api/forum", commentRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/posts", postRoutes);
