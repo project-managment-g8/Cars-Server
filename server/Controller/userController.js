@@ -113,23 +113,80 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+const followUser = async (req, res) => {
+  try {
+    const userToFollow = await User.findById(req.params.id);
+    const loggedInUser = await User.findById(req.user._id);
 
-// Get user profile
+    if (!userToFollow || !loggedInUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (loggedInUser.following.includes(userToFollow._id)) {
+      return res.status(400).json({ message: "Already following this user" });
+    }
+
+    loggedInUser.following.push(userToFollow._id);
+    await loggedInUser.save();
+
+    const updatedUser = await loggedInUser
+      .populate("following", "userName")
+      .execPopulate();
+
+    res.status(200).json({ following: updatedUser.following });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const unfollowUser = async (req, res) => {
+  try {
+    const userToUnfollow = await User.findById(req.params.id);
+    const loggedInUser = await User.findById(req.user._id);
+
+    if (!userToUnfollow || !loggedInUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const index = loggedInUser.following.indexOf(userToUnfollow._id);
+    if (index === -1) {
+      return res
+        .status(400)
+        .json({ message: "You are not following this user" });
+    }
+
+    loggedInUser.following.splice(index, 1);
+    await loggedInUser.save();
+
+    const updatedUser = await loggedInUser
+      .populate("following", "userName")
+      .execPopulate();
+
+    res.status(200).json({ following: updatedUser.following });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
 const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const userId = req.params.id || (req.user && req.user._id);
+    const user = await User.findById(userId).populate("following", "userName");
     if (user) {
       res.json({
         _id: user._id,
         userName: user.userName,
         email: user.email,
         img: user.img,
-        following: user.following,
+        following: user.following.map((followedUser) => ({
+          _id: followedUser._id,
+          userName: followedUser.userName,
+        })),
       });
     } else {
       res.status(404).json({ message: "User not found" });
     }
   } catch (error) {
+    console.error("Error fetching user profile:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -174,4 +231,6 @@ export {
   updateUserProfile,
   deleteUser,
   changePassword,
+  followUser,
+  unfollowUser,
 };

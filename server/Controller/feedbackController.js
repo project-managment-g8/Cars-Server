@@ -1,13 +1,23 @@
 // server/Contoller/feedbackController.js
-const submitFeedback = async (req, res) => {
-  const { feedback } = req.body;
-  // Handle feedback submission logic (e.g., save to database)
+import feedback from "../models/feedbackModel.js";
+const createFeedback = async (req, res) => {
+  console.log("Request Body:", req.body);
+  console.log("createPost called");
+
+  const { content } = req.body;
+  console.log("Content:", content);
+
+  const userId = req.user._id;
+  console.log("User ID:", userId);
+
   try {
-    // Save feedback to database
-    res.status(201).json({ message: "Feedback submitted successfully" });
+    const newFeedback = await feedback.create({ user: userId, content });
+    console.log("New feedback created:", newFeedback);
+    res.status(201).json(newFeedback);
   } catch (error) {
+    console.error("Error creating feedback:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-export { submitFeedback };
+export { createFeedback };

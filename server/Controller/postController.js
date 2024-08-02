@@ -4,7 +4,7 @@ import Post from "../models/postModel.js";
 // Fetch all posts
 const getPosts = async (req, res) => {
   try {
-    const posts = await Post.find().populate("user", "userName _id img");
+    const posts = await Post.find().populate("user", "userName _id");
     res.json(posts);
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -45,20 +45,36 @@ const createPost = async (req, res) => {
 // Like a post
 const likePost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
+    console.log("Liking post with ID:", req.params.id);
+    console.log("User ID:", req.user._id);
 
+    const post = await Post.findById(req.params.id);
     if (!post) {
+      console.log("Post not found");
       return res.status(404).json({ message: "Post not found" });
     }
 
+    console.log("Post found:", post);
+
+    // Check if the post has already been liked by the user
     if (post.likes.includes(req.user._id)) {
-      post.likes.pull(req.user._id);
+      console.log("Post already liked by user, unliking...");
+      post.likes.pull(req.user._id); // Unlike the post
     } else {
-      post.likes.push(req.user._id);
+      console.log("Post not liked by user, liking...");
+      post.likes.push(req.user._id); // Like the post
     }
 
-    await post.save();
-    res.json(post);
+    const updatedPost = await post.save();
+    console.log("Post updated:", updatedPost);
+
+    const populatedPost = await Post.findById(updatedPost._id).populate(
+      "user",
+      "userName"
+    );
+    console.log("Updated post with populated user:", populatedPost);
+
+    res.json(populatedPost); // Return the updated post with populated user information
   } catch (error) {
     console.error("Error liking post:", error);
     res.status(500).json({ message: "Server error" });

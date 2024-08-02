@@ -9,9 +9,10 @@ import {
   updateUserProfile,
   deleteUser,
   changePassword,
+  followUser,
+  unfollowUser,
 } from "../Controller/userController.js";
 
-router.get("/:id", protect, getUserProfile);
 router.post("/login", login);
 router.post("/register", registerUser);
 router
@@ -19,7 +20,9 @@ router
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile)
   .delete(protect, deleteUser);
-
+router.get("/:id", protect, getUserProfile);
 router.route("/change-password").put(protect, changePassword);
+router.route("/follow/:id").put(protect, followUser);
+router.route("/unfollow/:id").put(protect, unfollowUser);
 
 export default router;
