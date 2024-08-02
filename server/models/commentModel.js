@@ -10,6 +10,7 @@ const commentSchema = new mongoose.Schema(
       ref: "ForumPost",
       required: true,
     },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Add likes field
   },
   { timestamps: true }
 );

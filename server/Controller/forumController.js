@@ -18,10 +18,12 @@ const createForumPost = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 const getForumPosts = async (req, res) => {
+  const { category } = req.query;
+
   try {
-    const forumPosts = await ForumPost.find()
+    const query = category ? { title: category } : {};
+    const forumPosts = await ForumPost.find(query)
       .populate("user", "userName")
       .populate({
         path: "comments",
@@ -36,7 +38,37 @@ const getForumPosts = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+const likeForumPost = async (req, res) => {
+  try {
+    const post = await ForumPost.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
 
+    // Check if the post has already been liked by the user
+    if (post.likes.includes(req.user._id)) {
+      post.likes.pull(req.user._id); // Unlike the post
+    } else {
+      post.likes.push(req.user._id); // Like the post
+    }
+
+    const updatedPost = await post.save();
+    const populatedPost = await ForumPost.findById(updatedPost._id)
+      .populate("user", "userName")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "user",
+          select: "userName",
+        },
+      });
+
+    res.json(populatedPost); // Return the updated post with populated user and comments
+  } catch (error) {
+    console.error("Error liking forum post:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 const editForumPost = async (req, res) => {
   const { title, content } = req.body;
 
@@ -83,4 +115,10 @@ const deleteForumPost = async (req, res) => {
   }
 };
 
-export { createForumPost, getForumPosts, editForumPost, deleteForumPost };
+export {
+  createForumPost,
+  getForumPosts,
+  editForumPost,
+  deleteForumPost,
+  likeForumPost,
+};

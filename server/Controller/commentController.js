@@ -26,6 +26,31 @@ const createComment = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+// Like/Unlike a comment
+const likeComment = async (req, res) => {
+  try {
+    const comment = await Comment.findById(req.params.commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    const userId = req.user._id;
+    if (comment.likes.includes(userId)) {
+      comment.likes.pull(userId); // Unlike the comment
+    } else {
+      comment.likes.push(userId); // Like the comment
+    }
+
+    const updatedComment = await comment.save();
+    const populatedComment = await Comment.findById(
+      updatedComment._id
+    ).populate("user", "userName");
+    res.json(populatedComment);
+  } catch (error) {
+    console.error("Error liking comment:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 // Delete a comment
 const deleteComment = async (req, res) => {
   const { id } = req.params;
@@ -41,7 +66,7 @@ const deleteComment = async (req, res) => {
       return res.status(401).json({ message: "User not authorized" });
     }
 
-    await comment.remove();
+    await Comment.deleteOne({ _id: id });
     res.json({ message: "Comment removed" });
   } catch (error) {
     console.error("Error deleting comment:", error);
@@ -88,4 +113,10 @@ const getCommentsByPost = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-export { createComment, getCommentsByPost, deleteComment, editComment };
+export {
+  createComment,
+  getCommentsByPost,
+  deleteComment,
+  editComment,
+  likeComment,
+};

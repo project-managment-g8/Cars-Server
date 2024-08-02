@@ -6,6 +6,7 @@ import {
   getForumPosts,
   deleteForumPost,
   editForumPost,
+  likeForumPost,
 } from "../Controller/forumController.js";
 
 const router = express.Router();
@@ -15,5 +16,6 @@ router
   .route("/:id")
   .put(protect, editForumPost)
   .delete(protect, deleteForumPost);
+router.route("/:id/like").put(protect, likeForumPost); // Add this route
 
 export default router;
