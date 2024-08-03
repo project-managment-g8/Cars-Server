@@ -1,5 +1,6 @@
 // server/controllers/postController.js
 import Post from "../models/postModel.js";
+import { gfs } from "../server.js";
 import Notification from "../models/notificationModel.js";
 // Fetch all posts
 const getPosts = async (req, res) => {
@@ -105,4 +106,47 @@ const deletePost = async (req, res) => {
   }
 };
 
-export { getPosts, createPost, likePost, deletePost };
+// Update a post
+const updatePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const post = await Post.findById(id);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    if (post.user.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: "User not authorized" });
+    }
+
+    // Check if a new image is uploaded
+    if (req.file) {
+      // Delete the old image from GridFS
+      if (post.image) {
+        const oldImageFile = await gfs.find({ filename: post.image }).toArray();
+        if (oldImageFile.length > 0) {
+          await gfs.delete(oldImageFile[0]._id);
+        }
+      }
+      post.image = req.file.filename;
+    }
+
+    // Update content if provided
+    if (req.body.content !== undefined) {
+      post.content = req.body.content;
+    }
+
+    const updatedPost = await post.save();
+    const populatedPost = await Post.findById(updatedPost._id).populate(
+      "user",
+      "userName _id"
+    );
+
+    res.json(populatedPost);
+  } catch (error) {
+    console.error("Error updating post:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+export { getPosts, createPost, likePost, deletePost, updatePost };
