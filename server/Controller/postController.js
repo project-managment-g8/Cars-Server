@@ -35,7 +35,11 @@ const createPost = async (req, res) => {
   try {
     const newPost = await Post.create({ user: userId, content, image });
     console.log("New post created:", newPost);
-    res.status(201).json(newPost);
+    const populatedPost = await Post.findById(newPost._id).populate(
+      "user",
+      "userName _id"
+    );
+    res.status(201).json(populatedPost);
   } catch (error) {
     console.error("Error creating post:", error);
     res.status(500).json({ message: "Server error" });

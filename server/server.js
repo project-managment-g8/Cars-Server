@@ -82,7 +82,10 @@ app.use("/api/notification", notificationRoutes);
 app.get("/", (req, res) => {
   res.send("Welcome to the Vehicle Social Platform API!");
 });
-
+app.post("/api/users/logout", (req, res) => {
+  res.clearCookie("token"); // Assuming token is stored in cookies
+  res.status(200).send({ message: "Logged out successfully" });
+});
 app.get("/ping", (req, res) => {
   res.send("pong <G8>");
 });

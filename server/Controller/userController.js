@@ -50,6 +50,7 @@ const login = async (req, res) => {
         userName: user.userName,
         email: user.email,
         _id: user._id,
+        following: user.following,
       });
     } else {
       res.status(401).json({ success: false, message: "Invalid credentials" });
@@ -114,63 +115,63 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-// Follow a user
 const followUser = async (req, res) => {
   try {
     const userToFollow = await User.findById(req.params.id);
-    if (!userToFollow) {
+    const loggedInUser = await User.findById(req.user._id);
+
+    if (!userToFollow || !loggedInUser) {
+      console.log("User not found");
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (userToFollow.followers.includes(req.user._id)) {
-      return res.status(400).json({ message: "You already follow this user" });
+    if (loggedInUser.following.includes(userToFollow._id)) {
+      console.log("Already following this user");
+      return res.status(400).json({ message: "Already following this user" });
     }
 
-    userToFollow.followers.push(req.user._id);
-    await userToFollow.save();
+    loggedInUser.following.push(userToFollow._id);
+    await loggedInUser.save();
 
-    const notification = new Notification({
-      user: userToFollow._id,
-      type: "follow",
-      message: `${req.user.userName} started following you.`,
-    });
-    await notification.save();
+    const updatedUser = await loggedInUser.populate("following", "userName");
 
-    res.json({ message: `You are now following ${userToFollow.userName}` });
+    res.status(200).json({ following: updatedUser.following });
   } catch (error) {
-    console.error("Error following user:", error);
+    console.error("Error in followUser:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 const unfollowUser = async (req, res) => {
   try {
     const userToUnfollow = await User.findById(req.params.id);
     const loggedInUser = await User.findById(req.user._id);
+
+    console.log("User to unfollow:", userToUnfollow);
+    console.log("Logged in user:", loggedInUser);
 
     if (!userToUnfollow || !loggedInUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
     const index = loggedInUser.following.indexOf(userToUnfollow._id);
+    console.log("Index of user to unfollow:", index);
+
     if (index === -1) {
-      return res
-        .status(400)
-        .json({ message: "You are not following this user" });
+      return res.status(400).json({ message: "Not following this user" });
     }
 
     loggedInUser.following.splice(index, 1);
     await loggedInUser.save();
 
-    const updatedUser = await loggedInUser
-      .populate("following", "userName")
-      .execPopulate();
+    const updatedUser = await loggedInUser.populate("following", "userName");
 
     res.status(200).json({ following: updatedUser.following });
   } catch (error) {
+    console.error("Error in unfollowUser:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 const getUserProfile = async (req, res) => {
   try {
     const userId = req.params.id || (req.user && req.user._id);
