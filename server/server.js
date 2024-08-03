@@ -19,7 +19,10 @@ import { protect } from "./middleware/authMiddleware.js";
 import { GridFsStorage } from "multer-gridfs-storage";
 
 dotenv.config();
-
+const corsOptions = {
+  origin: "https://cars-client.onrender.com", // Your client URL
+  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+};
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 const port = process.env.PORT || 5001;
@@ -27,7 +30,7 @@ const app = express();
 
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors(corsOptions));
 
 // Connect to MongoDB
 mongoose
