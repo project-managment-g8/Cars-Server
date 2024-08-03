@@ -1,27 +1,29 @@
 // server/models/notificationModel.js
 import mongoose from "mongoose";
 
-const notificationSchema = new mongoose.Schema(
-  {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // The user who will receive the notification
-    type: { type: String, required: true }, // e.g., 'like', 'comment', 'follow'
-    message: { type: String, required: true },
-    isRead: { type: Boolean, default: false },
-    relatedPost: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Post",
-      required: false,
-    },
-    relatedForumPost: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "ForumPost",
-      required: false,
-    },
+const notificationSchema = mongoose.Schema({
+  recipient: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
-  {
-    timestamps: true,
-  }
-);
+  sender: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  type: { type: String, required: true },
+  post: { type: mongoose.Schema.Types.ObjectId, ref: "Post", required: false },
+  forumPost: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ForumPost",
+    required: false,
+  },
+  comment: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Comment",
+    required: false,
+  },
+  read: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+});
 
 const Notification = mongoose.model("Notification", notificationSchema);
+
 export default Notification;

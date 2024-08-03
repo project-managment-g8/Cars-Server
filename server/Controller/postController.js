@@ -1,6 +1,6 @@
 // server/controllers/postController.js
 import Post from "../models/postModel.js";
-
+import Notification from "../models/notificationModel.js";
 // Fetch all posts
 const getPosts = async (req, res) => {
   try {
@@ -49,36 +49,35 @@ const createPost = async (req, res) => {
 // Like a post
 const likePost = async (req, res) => {
   try {
-    console.log("Liking post with ID:", req.params.id);
-    console.log("User ID:", req.user._id);
-
     const post = await Post.findById(req.params.id);
     if (!post) {
-      console.log("Post not found");
       return res.status(404).json({ message: "Post not found" });
     }
 
-    console.log("Post found:", post);
-
     // Check if the post has already been liked by the user
     if (post.likes.includes(req.user._id)) {
-      console.log("Post already liked by user, unliking...");
       post.likes.pull(req.user._id); // Unlike the post
     } else {
-      console.log("Post not liked by user, liking...");
       post.likes.push(req.user._id); // Like the post
+
+      // Create a notification
+      if (post.user.toString() !== req.user._id.toString()) {
+        await Notification.create({
+          recipient: post.user,
+          sender: req.user._id,
+          type: "like",
+          post: post._id,
+        });
+      }
     }
 
     const updatedPost = await post.save();
-    console.log("Post updated:", updatedPost);
-
     const populatedPost = await Post.findById(updatedPost._id).populate(
       "user",
       "userName"
     );
-    console.log("Updated post with populated user:", populatedPost);
 
-    res.json(populatedPost); // Return the updated post with populated user information
+    res.json(populatedPost); // Return the updated post with populated user
   } catch (error) {
     console.error("Error liking post:", error);
     res.status(500).json({ message: "Server error" });

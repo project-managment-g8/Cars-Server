@@ -50,6 +50,15 @@ const likeForumPost = async (req, res) => {
       post.likes.pull(req.user._id); // Unlike the post
     } else {
       post.likes.push(req.user._id); // Like the post
+      // Create a notification
+      if (post.user.toString() !== req.user._id.toString()) {
+        await Notification.create({
+          recipient: post.user,
+          sender: req.user._id,
+          type: "like",
+          post: post._id,
+        });
+      }
     }
 
     const updatedPost = await post.save();

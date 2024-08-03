@@ -1,7 +1,10 @@
 import User from "../models/userModel.js";
 import generateToken from "../utils/generateToken.js";
 import Notification from "../models/notificationModel.js";
-
+import Post from "../models/postModel.js";
+import ForumPost from "../models/forumPostModel.js";
+import Comment from "../models/commentModel.js";
+import { gfs } from "../server.js";
 // Register user
 const registerUser = async (req, res, next) => {
   const { userName, email, password } = req.body;
@@ -97,6 +100,21 @@ const deleteUser = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
+      await ForumPost.deleteMany({ user: req.user._id });
+
+      await Post.deleteMany({ user: req.user._id });
+
+      await Comment.deleteMany({ user: req.user._id });
+
+      const gfs = req.app.locals.bucket;
+      const uploads = await gfs
+        .find({ "metadata.user": req.user._id })
+        .toArray();
+
+      for (let file of uploads) {
+        await gfs.delete(file._id);
+      }
+      // Delete the user
       await User.deleteOne({ _id: req.user._id });
 
       // Clear the token from cookies
@@ -121,17 +139,24 @@ const followUser = async (req, res) => {
     const loggedInUser = await User.findById(req.user._id);
 
     if (!userToFollow || !loggedInUser) {
-      console.log("User not found");
       return res.status(404).json({ message: "User not found" });
     }
 
     if (loggedInUser.following.includes(userToFollow._id)) {
-      console.log("Already following this user");
       return res.status(400).json({ message: "Already following this user" });
     }
 
     loggedInUser.following.push(userToFollow._id);
     await loggedInUser.save();
+
+    // Create a notification
+    if (userToFollow._id.toString() !== req.user._id.toString()) {
+      await Notification.create({
+        recipient: userToFollow._id,
+        sender: req.user._id,
+        type: "follow",
+      });
+    }
 
     const updatedUser = await loggedInUser.populate("following", "userName");
 

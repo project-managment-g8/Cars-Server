@@ -1,7 +1,7 @@
 // server/controllers/commentController.js
 import Comment from "../models/commentModel.js";
 import ForumPost from "../models/forumPostModel.js";
-
+import Notification from "../models/notificationModel.js";
 const createComment = async (req, res) => {
   const { content, forumPostId } = req.body;
   const userId = req.user._id;
@@ -15,14 +15,26 @@ const createComment = async (req, res) => {
     await ForumPost.findByIdAndUpdate(forumPostId, {
       $push: { comments: comment._id },
     });
+
+    // Create a notification
+    const forumPost = await ForumPost.findById(forumPostId);
+    if (forumPost.user.toString() !== req.user._id.toString()) {
+      await Notification.create({
+        recipient: forumPost.user,
+        sender: req.user._id,
+        type: "comment",
+        forumPost: forumPost._id,
+        comment: comment._id,
+      });
+    }
+
     const populatedComment = await Comment.findById(comment._id).populate(
       "user",
       "userName"
     );
-    console.log("Create Comment - Populated Comment:", populatedComment); // Add this log for debugging
     res.status(201).json(populatedComment);
   } catch (error) {
-    console.error("Error creating comment:", error); // Log the error
+    console.error("Error creating comment:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -39,6 +51,15 @@ const likeComment = async (req, res) => {
       comment.likes.pull(userId); // Unlike the comment
     } else {
       comment.likes.push(userId); // Like the comment
+      // Create a notification
+      if (post.user.toString() !== req.user._id.toString()) {
+        await Notification.create({
+          recipient: post.user,
+          sender: req.user._id,
+          type: "like",
+          post: post._id,
+        });
+      }
     }
 
     const updatedComment = await comment.save();

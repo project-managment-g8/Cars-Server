@@ -14,6 +14,7 @@ import path from "path";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import multer from "multer";
+import { protect } from "./middleware/authMiddleware.js";
 import { GridFsStorage } from "multer-gridfs-storage";
 
 dotenv.config();
@@ -59,6 +60,7 @@ const storage = new GridFsStorage({
     return {
       bucketName: "uploads",
       filename: `${Date.now()}-${file.originalname}`,
+      metadata: { user: req.user._id },
     };
   },
 });
@@ -66,7 +68,7 @@ const storage = new GridFsStorage({
 const upload = multer({ storage });
 
 // Route to handle image uploads
-app.post("/upload", upload.single("image"), (req, res) => {
+app.post("/upload", protect, upload.single("image"), (req, res) => {
   console.log(`File uploaded: ${req.file.filename}`);
   res.json({ filePath: req.file.filename });
 });
@@ -100,4 +102,4 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 // Export the app for testing
-export { app };
+export { app, gfs };
