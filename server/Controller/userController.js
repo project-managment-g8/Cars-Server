@@ -25,6 +25,7 @@ const registerUser = async (req, res, next) => {
 
     if (user) {
       generateToken(res, user._id);
+      console.log(res);
       res.status(200).json({
         success: true,
         userName: user.userName,
