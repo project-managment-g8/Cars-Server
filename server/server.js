@@ -9,6 +9,7 @@ import postRoutes from "./routes/postRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import eventRoutes from "./routes/eventRoutes.js";
 import dotenv from "dotenv";
 import path from "path";
 import mongoose from "mongoose";
@@ -76,6 +77,7 @@ app.post("/upload", protect, upload.single("image"), (req, res) => {
 // Route to fetch images from GridFS
 app.use("/api/uploads", imageRoutes);
 app.use("/api/forum", forumRoutes);
+app.use("/api/events", eventRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/feedback", feedbackRoutes);
