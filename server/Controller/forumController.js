@@ -31,7 +31,8 @@ const getForumPosts = async (req, res) => {
           path: "user",
           select: "userName",
         },
-      });
+      })
+      .sort({ is_sticky: -1, createdAt: -1 }); // Sort sticky posts first
     res.json(forumPosts);
   } catch (error) {
     console.error("Error fetching forum posts:", error);
@@ -79,12 +80,15 @@ const likeForumPost = async (req, res) => {
   }
 };
 const editForumPost = async (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, is_sticky } = req.body;
 
   try {
     const post = await ForumPost.findById(req.params.id);
 
-    if (post.user.toString() !== req.user._id.toString()) {
+    if (
+      post.user.toString() !== req.user._id.toString() &&
+      !req.user.is_admin
+    ) {
       return res
         .status(401)
         .json({ message: "Not authorized to edit this post" });
@@ -92,9 +96,20 @@ const editForumPost = async (req, res) => {
 
     post.title = title || post.title;
     post.content = content || post.content;
+    if (typeof is_sticky !== "undefined") post.is_sticky = is_sticky;
 
     const updatedPost = await post.save();
-    res.json(updatedPost);
+    const populatedPost = await ForumPost.findById(updatedPost._id)
+      .populate("user", "userName")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "user",
+          select: "userName",
+        },
+      });
+
+    res.json(populatedPost);
   } catch (error) {
     console.error("Error editing forum post:", error);
     res.status(500).json({ message: "Server error", error: error.message });
