@@ -46,18 +46,23 @@ const likeComment = async (req, res) => {
       return res.status(404).json({ message: "Comment not found" });
     }
 
+    const forumPost = await ForumPost.findById(comment.forumPost);
+    if (!forumPost) {
+      return res.status(404).json({ message: "Forum post not found" });
+    }
+
     const userId = req.user._id;
     if (comment.likes.includes(userId)) {
       comment.likes.pull(userId); // Unlike the comment
     } else {
       comment.likes.push(userId); // Like the comment
       // Create a notification
-      if (post.user.toString() !== req.user._id.toString()) {
+      if (forumPost.user.toString() !== req.user._id.toString()) {
         await Notification.create({
-          recipient: post.user,
+          recipient: forumPost.user,
           sender: req.user._id,
           type: "like",
-          post: post._id,
+          post: forumPost._id,
         });
       }
     }

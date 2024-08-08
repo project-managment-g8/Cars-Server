@@ -1,7 +1,7 @@
 // server/controllers/forumController.js
 import ForumPost from "../models/forumPostModel.js";
 import Comment from "../models/commentModel.js";
-
+import Notification from "../models/notificationModel.js";
 const createForumPost = async (req, res) => {
   const { title, content } = req.body;
   const userId = req.user._id;
@@ -96,7 +96,14 @@ const editForumPost = async (req, res) => {
 
     post.title = title || post.title;
     post.content = content || post.content;
-    if (typeof is_sticky !== "undefined") post.is_sticky = is_sticky;
+
+    // Only moderators and admins can set sticky
+    if (
+      typeof is_sticky !== "undefined" &&
+      (req.user.role === "moderator" || req.user.role === "admin")
+    ) {
+      post.is_sticky = is_sticky;
+    }
 
     const updatedPost = await post.save();
     const populatedPost = await ForumPost.findById(updatedPost._id)

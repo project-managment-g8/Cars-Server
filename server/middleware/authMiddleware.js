@@ -1,9 +1,11 @@
+// server/middleware/authMiddleware.js
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js"; // Adjust the import based on your file structure
 
-export const protect = async (req, res, next) => {
+const protect = async (req, res, next) => {
   let token;
 
+  // Check for token in cookies
   if (req.cookies.token) {
     token = req.cookies.token;
   }
@@ -26,3 +28,16 @@ export const protect = async (req, res, next) => {
     res.status(401).json({ message: "Not authorized, no token" });
   }
 };
+
+const moderator = (req, res, next) => {
+  if (
+    req.user &&
+    (req.user.role === "moderator" || req.user.role === "admin")
+  ) {
+    next();
+  } else {
+    res.status(403).json({ message: "Not authorized as a moderator" });
+  }
+};
+
+export { protect, moderator };

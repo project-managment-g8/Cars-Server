@@ -210,6 +210,7 @@ const getUserProfile = async (req, res) => {
         userName: user.userName,
         email: user.email,
         img: user.img,
+        role: user.role,
         following: user.following.map((followedUser) => ({
           _id: followedUser._id,
           userName: followedUser.userName,
