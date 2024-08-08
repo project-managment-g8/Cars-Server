@@ -29,4 +29,14 @@ const markNotificationsAsRead = async (req, res) => {
   }
 };
 
-export { getNotifications, markNotificationsAsRead };
+const clearNotifications = async (req, res) => {
+  try {
+    await Notification.deleteMany({ recipient: req.user._id });
+    res.status(200).json({ message: "Notifications cleared" });
+  } catch (error) {
+    console.error("Error clearing notifications:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export { getNotifications, markNotificationsAsRead, clearNotifications };
