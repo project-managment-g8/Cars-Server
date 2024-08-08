@@ -22,6 +22,11 @@ const postSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    sharedFrom: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+      required: false,
+    },
   },
   {
     timestamps: true,

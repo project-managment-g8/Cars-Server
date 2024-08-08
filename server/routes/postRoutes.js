@@ -6,6 +6,7 @@ import {
   likePost,
   deletePost,
   updatePost,
+  sharePost,
 } from "../Controller/postController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import multer from "multer";
@@ -34,4 +35,5 @@ router.route("/post").post(protect, upload.single("image"), createPost);
 router.route("/:id/like").put(protect, likePost);
 router.route("/:id").delete(protect, deletePost);
 router.route("/:id").put(protect, upload.single("image"), updatePost);
+router.route("/:id/share").post(protect, sharePost);
 export default router;

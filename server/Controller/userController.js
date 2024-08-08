@@ -49,9 +49,11 @@ const login = async (req, res) => {
     // Check if user exists and validate password
     if (user && password === user.password) {
       generateToken(res, user._id);
+      console.log("user is admin : ", user.is_admin);
       res.json({
         success: true,
         userName: user.userName,
+        is_admin: user.is_admin,
         email: user.email,
         _id: user._id,
         following: user.following,

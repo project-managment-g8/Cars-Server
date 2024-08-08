@@ -5,7 +5,15 @@ import Notification from "../models/notificationModel.js";
 // Fetch all posts
 const getPosts = async (req, res) => {
   try {
-    const posts = await Post.find().populate("user", "userName _id");
+    const posts = await Post.find()
+      .populate("user", "userName _id")
+      .populate({
+        path: "sharedFrom",
+        populate: {
+          path: "user",
+          select: "userName _id",
+        },
+      });
     res.json(posts);
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -149,4 +157,40 @@ const updatePost = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-export { getPosts, createPost, likePost, deletePost, updatePost };
+const sharePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const originalPost = await Post.findById(id).populate(
+      "user",
+      "userName _id"
+    );
+
+    if (!originalPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    const sharedPost = await Post.create({
+      user: req.user._id,
+      content: originalPost.content,
+      image: originalPost.image,
+      sharedFrom: originalPost._id,
+    });
+
+    const populatedPost = await Post.findById(sharedPost._id)
+      .populate("user", "userName _id")
+      .populate({
+        path: "sharedFrom",
+        populate: {
+          path: "user",
+          select: "userName _id",
+        },
+      });
+
+    res.status(201).json(populatedPost);
+  } catch (error) {
+    console.error("Error sharing post:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export { getPosts, createPost, likePost, deletePost, updatePost, sharePost };
