@@ -39,6 +39,24 @@ const getForumPosts = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+const getUserForumPosts = async (req, res) => {
+  try {
+    const forumPosts = await ForumPost.find({ user: req.params.userId }) // Filter by userId
+      .populate("user", "userName")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "user",
+          select: "userName",
+        },
+      })
+      .sort({ is_sticky: -1, createdAt: -1 }); // Sort sticky posts first
+    res.json(forumPosts);
+  } catch (error) {
+    console.error("Error fetching forum posts:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
 const likeForumPost = async (req, res) => {
   try {
     const post = await ForumPost.findById(req.params.id);
@@ -87,7 +105,7 @@ const editForumPost = async (req, res) => {
 
     if (
       post.user.toString() !== req.user._id.toString() &&
-      !req.user.is_admin
+      !(req.user.role === "admin" || req.user.role === "moderator")
     ) {
       return res
         .status(401)
@@ -131,7 +149,10 @@ const deleteForumPost = async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    if (post.user.toString() !== req.user._id.toString()) {
+    if (
+      post.user.toString() !== req.user._id.toString() &&
+      !(req.user.role === "admin" || req.user.role === "moderator")
+    ) {
       return res
         .status(401)
         .json({ message: "Not authorized to delete this post" });
@@ -145,11 +166,29 @@ const deleteForumPost = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
+const getLikedForumPosts = async (req, res) => {
+  try {
+    const forumPosts = await ForumPost.find({ likes: req.params.userId })
+      .populate("user", "userName")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "user",
+          select: "userName",
+        },
+      });
+    res.json(forumPosts);
+  } catch (error) {
+    console.error("Error fetching liked forum posts:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 export {
   createForumPost,
   getForumPosts,
   editForumPost,
   deleteForumPost,
   likeForumPost,
+  getUserForumPosts,
+  getLikedForumPosts,
 };

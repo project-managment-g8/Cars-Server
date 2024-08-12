@@ -7,6 +7,10 @@ import {
   deletePost,
   updatePost,
   sharePost,
+  getUserPosts,
+  getLikedPosts,
+  savePost,
+  getSavedPosts,
 } from "../Controller/postController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import multer from "multer";
@@ -34,6 +38,10 @@ router.route("/").get(getPosts);
 router.route("/post").post(protect, upload.single("image"), createPost);
 router.route("/:id/like").put(protect, likePost);
 router.route("/:id").delete(protect, deletePost);
+router.get("/user/:userId", getUserPosts);
 router.route("/:id").put(protect, upload.single("image"), updatePost);
 router.route("/:id/share").post(protect, sharePost);
+router.get("/liked/:userId", getLikedPosts);
+router.put("/:id/save", protect, savePost);
+router.get("/saved/:userId", getSavedPosts); // Add route to get saved posts
 export default router;

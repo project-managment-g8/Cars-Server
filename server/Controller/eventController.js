@@ -19,7 +19,18 @@ const getEvents = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
+const getUserEvents = async (req, res) => {
+  try {
+    const events = await Event.find({ user: req.params.userId }).populate(
+      "user",
+      "userName _id"
+    ); // Filter by userId
+    res.json(events);
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 // Create an event
 const createEvent = async (req, res) => {
   const { title, description, date } = req.body;
@@ -129,4 +140,4 @@ const deleteEvent = async (req, res) => {
   }
 };
 
-export { getEvents, createEvent, updateEvent, deleteEvent };
+export { getEvents, createEvent, updateEvent, deleteEvent, getUserEvents };

@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema(
     img: { type: String, required: false },
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+    savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     category: { type: String, required: false },
   },
   {

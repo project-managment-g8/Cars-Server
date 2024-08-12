@@ -1,4 +1,5 @@
 // server/controllers/postController.js
+import User from "../models/userModel.js";
 import Post from "../models/postModel.js";
 import { gfs } from "../server.js";
 import Notification from "../models/notificationModel.js";
@@ -20,7 +21,23 @@ const getPosts = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
+const getUserPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({ user: req.params.userId }) // Filter by userId
+      .populate("user", "userName _id")
+      .populate({
+        path: "sharedFrom",
+        populate: {
+          path: "user",
+          select: "userName _id",
+        },
+      });
+    res.json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 // Create a post
 const createPost = async (req, res) => {
   console.log("Request Body:", req.body);
@@ -128,7 +145,7 @@ const updatePost = async (req, res) => {
       return res.status(401).json({ message: "User not authorized" });
     }
 
-    // Check if a new image is uploaded
+    // Check if a new image is uploade
     if (req.file) {
       // Delete the old image from GridFS
       if (post.image) {
@@ -192,5 +209,74 @@ const sharePost = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+const getLikedPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({ likes: req.params.userId })
+      .populate("user", "userName _id")
+      .populate({
+        path: "sharedFrom",
+        populate: {
+          path: "user",
+          select: "userName _id",
+        },
+      });
+    res.json(posts);
+  } catch (error) {
+    console.error("Error fetching liked posts:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+// Save or unsave a post
+const savePost = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
 
-export { getPosts, createPost, likePost, deletePost, updatePost, sharePost };
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const postId = req.params.id;
+    const isSaved = user.savedPosts.includes(postId);
+
+    if (isSaved) {
+      user.savedPosts.pull(postId); // Unsave the post
+    } else {
+      user.savedPosts.push(postId); // Save the post
+    }
+
+    await user.save();
+    res.json({ message: isSaved ? "Post unsaved" : "Post saved" });
+  } catch (error) {
+    console.error("Error saving post:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get saved posts for a user
+const getSavedPosts = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).populate({
+      path: "savedPosts",
+      populate: {
+        path: "user",
+        select: "userName _id",
+      },
+    });
+    res.json(user.savedPosts);
+  } catch (error) {
+    console.error("Error fetching saved posts:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+export {
+  getPosts,
+  createPost,
+  likePost,
+  deletePost,
+  updatePost,
+  sharePost,
+  getUserPosts,
+  getLikedPosts,
+  savePost,
+  getSavedPosts,
+};

@@ -258,6 +258,57 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
+const makeModerator = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.role = "moderator";
+    const updatedUser = await user.save();
+    res.status(200).json({
+      message: "User role updated to moderator",
+      user: {
+        _id: updatedUser._id,
+        userName: updatedUser.userName,
+        email: updatedUser.email,
+        img: updatedUser.img,
+        role: updatedUser.role,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const unmakeModerator = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.role = "user";
+    const updatedUser = await user.save();
+    res.status(200).json({
+      message: "User role updated to user",
+      user: {
+        _id: updatedUser._id,
+        userName: updatedUser.userName,
+        email: updatedUser.email,
+        img: updatedUser.img,
+        role: updatedUser.role,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Export all functions including the new ones
 export {
   login,
   registerUser,
@@ -267,4 +318,6 @@ export {
   changePassword,
   followUser,
   unfollowUser,
+  makeModerator,
+  unmakeModerator,
 };
