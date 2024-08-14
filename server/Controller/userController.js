@@ -1,3 +1,4 @@
+// server/Controller/userController.js
 import User from "../models/userModel.js";
 import generateToken from "../utils/generateToken.js";
 import Notification from "../models/notificationModel.js";
@@ -207,6 +208,11 @@ const getUserProfile = async (req, res) => {
     const userId = req.params.id || (req.user && req.user._id);
     const user = await User.findById(userId).populate("following", "userName");
     if (user) {
+      const totalUsers = await User.countDocuments({});
+      const followingCount = user.following.length;
+      const followingPercentage = ((followingCount / totalUsers) * 100).toFixed(
+        2
+      );
       res.json({
         _id: user._id,
         userName: user.userName,
@@ -218,6 +224,7 @@ const getUserProfile = async (req, res) => {
           _id: followedUser._id,
           userName: followedUser.userName,
         })),
+        followingPercentage: followingPercentage,
       });
     } else {
       res.status(404).json({ message: "User not found" });
