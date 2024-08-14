@@ -7,7 +7,7 @@ import Comment from "../models/commentModel.js";
 import { gfs } from "../server.js";
 // Register user
 const registerUser = async (req, res, next) => {
-  const { userName, email, password } = req.body;
+  const { userName, title, email, password } = req.body;
   try {
     // Check if the user already exists
     const userExists = await User.findOne({ email });
@@ -19,6 +19,7 @@ const registerUser = async (req, res, next) => {
     // Create a new user
     const user = await User.create({
       userName,
+      title: title,
       email,
       password: password,
     });
@@ -54,6 +55,7 @@ const login = async (req, res) => {
         success: true,
         userName: user.userName,
         is_admin: user.is_admin,
+        title: user.title,
         email: user.email,
         _id: user._id,
         following: user.following,
@@ -208,6 +210,7 @@ const getUserProfile = async (req, res) => {
       res.json({
         _id: user._id,
         userName: user.userName,
+        title: user.title,
         email: user.email,
         img: user.img,
         role: user.role,
@@ -227,7 +230,7 @@ const getUserProfile = async (req, res) => {
 
 // Update user profile
 const updateUserProfile = async (req, res) => {
-  const { userName, email, img } = req.body;
+  const { userName, title, email, img } = req.body;
 
   try {
     if (!req.user || !req.user._id) {
@@ -238,6 +241,7 @@ const updateUserProfile = async (req, res) => {
 
     if (user) {
       user.userName = userName || user.userName;
+      user.title = title || user.title;
       user.email = email || user.email;
       user.img = img || user.img;
 
@@ -245,6 +249,7 @@ const updateUserProfile = async (req, res) => {
 
       res.json({
         userName: updatedUser.userName,
+        title: updatedUser.title,
         email: updatedUser.email,
         _id: updatedUser._id,
         img: updatedUser.img,
@@ -272,6 +277,7 @@ const makeModerator = async (req, res) => {
       user: {
         _id: updatedUser._id,
         userName: updatedUser.userName,
+        title: updatedUser.title,
         email: updatedUser.email,
         img: updatedUser.img,
         role: updatedUser.role,
@@ -297,6 +303,7 @@ const unmakeModerator = async (req, res) => {
       user: {
         _id: updatedUser._id,
         userName: updatedUser.userName,
+        title: updatedUser.title,
         email: updatedUser.email,
         img: updatedUser.img,
         role: updatedUser.role,
