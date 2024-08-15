@@ -22,6 +22,7 @@ const eventSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    rsvps: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   {
     timestamps: true,

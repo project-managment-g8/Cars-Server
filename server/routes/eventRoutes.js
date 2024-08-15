@@ -5,6 +5,8 @@ import {
   updateEvent,
   deleteEvent,
   getUserEvents,
+  rsvpEvent,
+  unrsvpEvent,
 } from "../Controller/eventController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import multer from "multer";
@@ -37,4 +39,6 @@ router
   .put(protect, upload.single("image"), updateEvent)
   .delete(protect, deleteEvent);
 router.get("/user/:userId", getUserEvents);
+router.put("/rsvp/:id", protect, rsvpEvent);
+router.put("/unrsvp/:id", protect, unrsvpEvent);
 export default router;

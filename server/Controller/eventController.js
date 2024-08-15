@@ -139,5 +139,61 @@ const deleteEvent = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+const rsvpEvent = async (req, res) => {
+  try {
+    console.log("User in rsvpEvent:", req.user); // Add this line
+    const event = await Event.findById(req.params.id);
 
-export { getEvents, createEvent, updateEvent, deleteEvent, getUserEvents };
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    if (event.rsvps.includes(req.user._id)) {
+      return res
+        .status(400)
+        .json({ message: "You have already RSVP'd to this event" });
+    }
+
+    event.rsvps.push(req.user._id);
+    await event.save();
+
+    res.status(200).json({ message: "RSVP successful", rsvps: event.rsvps });
+  } catch (error) {
+    console.error("Error RSVPing to event:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const unrsvpEvent = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    const rsvpIndex = event.rsvps.indexOf(req.user._id);
+    if (rsvpIndex === -1) {
+      return res
+        .status(400)
+        .json({ message: "You have not RSVP'd to this event" });
+    }
+
+    event.rsvps.splice(rsvpIndex, 1);
+    await event.save();
+
+    res.status(200).json({ message: "RSVP removed", rsvps: event.rsvps });
+  } catch (error) {
+    console.error("Error removing RSVP from event:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+export {
+  getEvents,
+  createEvent,
+  updateEvent,
+  deleteEvent,
+  getUserEvents,
+  rsvpEvent,
+  unrsvpEvent,
+};
