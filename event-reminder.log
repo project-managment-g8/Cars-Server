@@ -42,3 +42,9 @@
 {"level":"info","message":"Starting event reminder job","timestamp":"2024-08-17T21:41:28.462Z"}
 {"level":"info","message":"Found 1 event(s) happening tomorrow","timestamp":"2024-08-17T21:41:32.364Z"}
 {"level":"info","message":"Notification sent to user sagi for event \"qsadasd\"","timestamp":"2024-08-17T21:41:32.498Z"}
+{"level":"info","message":"Starting event reminder job","timestamp":"2024-08-17T21:51:16.540Z"}
+{"level":"info","message":"Starting event reminder job","timestamp":"2024-08-17T21:54:17.432Z"}
+{"level":"info","message":"Starting event reminder job","timestamp":"2024-08-17T21:54:20.458Z"}
+{"level":"info","message":"Found 1 event(s) happening tomorrow","timestamp":"2024-08-17T21:54:23.469Z"}
+{"level":"info","message":"Notification sent to user sagi for event \"qsadasd\"","timestamp":"2024-08-17T21:54:23.602Z"}
+{"level":"info","message":"Notification sent to user sagi1lidani for event \"qsadasd\"","timestamp":"2024-08-17T21:54:23.729Z"}
