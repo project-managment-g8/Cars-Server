@@ -1,4 +1,4 @@
-// server/routes/commentRoutes.js
+// server/routes/forumCommentRoutes.js
 import express from "express";
 import { protect } from "../middleware/authMiddleware.js";
 import {
@@ -7,7 +7,7 @@ import {
   createComment,
   getCommentsByPost,
   likeComment,
-} from "../Controller/commentController.js";
+} from "../Controller/forumCommentController.js";
 
 const router = express.Router();
 

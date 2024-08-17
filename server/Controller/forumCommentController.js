@@ -1,5 +1,5 @@
-// server/controllers/commentController.js
-import Comment from "../models/commentModel.js";
+// server/controllers/forumCommentController.js
+import Comment from "../models/forumCommentModel.js";
 import ForumPost from "../models/forumPostModel.js";
 import Notification from "../models/notificationModel.js";
 const createComment = async (req, res) => {

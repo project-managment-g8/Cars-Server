@@ -20,6 +20,16 @@ const notificationSchema = mongoose.Schema({
     ref: "Comment",
     required: false,
   },
+  event: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Event",
+    required: false,
+  }, // Add this line
+  eventReminder: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Event",
+    required: false,
+  }, // Add this line
   read: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });

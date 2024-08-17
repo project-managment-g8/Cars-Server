@@ -4,7 +4,7 @@ import generateToken from "../utils/generateToken.js";
 import Notification from "../models/notificationModel.js";
 import Post from "../models/postModel.js";
 import ForumPost from "../models/forumPostModel.js";
-import Comment from "../models/commentModel.js";
+import Comment from "../models/forumCommentModel.js";
 import { gfs } from "../server.js";
 // Register user
 const registerUser = async (req, res, next) => {
@@ -220,6 +220,7 @@ const getUserProfile = async (req, res) => {
         email: user.email,
         img: user.img,
         role: user.role,
+        createdAt: user.createdAt,
         following: user.following.map((followedUser) => ({
           _id: followedUser._id,
           userName: followedUser.userName,

@@ -1,3 +1,4 @@
+// server/models/eventModel.js
 import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema(
@@ -23,6 +24,7 @@ const eventSchema = new mongoose.Schema(
       type: String,
     },
     rsvps: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "eventComment" }],
   },
   {
     timestamps: true,

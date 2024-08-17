@@ -1,6 +1,6 @@
 // server/controllers/forumController.js
 import ForumPost from "../models/forumPostModel.js";
-import Comment from "../models/commentModel.js";
+import Comment from "../models/forumCommentModel.js";
 import Notification from "../models/notificationModel.js";
 const createForumPost = async (req, res) => {
   const { title, content } = req.body;

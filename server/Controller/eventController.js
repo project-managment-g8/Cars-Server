@@ -1,5 +1,7 @@
+// server/Controller/eventController.js
 import Event from "../models/eventModel.js";
 import { GridFSBucket } from "mongodb";
+import Notification from "../models/notificationModel.js";
 import mongoose from "mongoose";
 
 // Initialize GridFSBucket
@@ -9,25 +11,48 @@ conn.once("open", () => {
   gfsBucket = new GridFSBucket(conn.db, { bucketName: "uploads" });
 });
 
-// Fetch all events
 const getEvents = async (req, res) => {
   try {
-    const events = await Event.find().populate("user", "userName _id");
+    let events = await Event.find()
+      .populate("user", "userName _id")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "user",
+          select: "userName",
+        },
+      })
+      .populate({
+        path: "rsvps",
+        select: "userName _id", // Populating RSVPs with user info
+      });
+    events = events.sort((a, b) => b.rsvps.length - a.rsvps.length);
+
     res.json(events);
   } catch (error) {
     console.error("Error fetching events:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 const getUserEvents = async (req, res) => {
   try {
-    const events = await Event.find({ user: req.params.userId }).populate(
-      "user",
-      "userName _id"
-    ); // Filter by userId
+    const events = await Event.find({ user: req.params.userId })
+      .populate("user", "userName _id")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "user",
+          select: "userName",
+        },
+      })
+      .populate({
+        path: "rsvps",
+        select: "userName _id", // Populating RSVPs with user info
+      });
     res.json(events);
   } catch (error) {
-    console.error("Error fetching events:", error);
+    console.error("Error fetching user events:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -141,25 +166,42 @@ const deleteEvent = async (req, res) => {
 };
 const rsvpEvent = async (req, res) => {
   try {
-    console.log("User in rsvpEvent:", req.user); // Add this line
+    console.log("Received RSVP request for event ID:", req.params.id);
+    console.log("User making the request:", req.user);
+
     const event = await Event.findById(req.params.id);
+    console.log("Event found:", event);
 
     if (!event) {
+      console.error("Event not found");
       return res.status(404).json({ message: "Event not found" });
     }
 
     if (event.rsvps.includes(req.user._id)) {
+      console.warn("User has already RSVPed to this event");
       return res
         .status(400)
-        .json({ message: "You have already RSVP'd to this event" });
+        .json({ message: "You've already RSVP'd to this event" });
     }
 
     event.rsvps.push(req.user._id);
     await event.save();
 
+    console.log("RSVP successful, creating notification...");
+
+    const notification = await Notification.create({
+      recipient: req.user._id, // The user RSVPing is the recipient
+      sender: event.user, // The event creator is the sender
+      type: "eventRsvp",
+      event: event._id,
+      message: `You have RSVP'd to the event: ${event.title}. We'll notify you closer to the event date.`,
+    });
+
+    console.log("Notification created successfully:", notification);
+
     res.status(200).json({ message: "RSVP successful", rsvps: event.rsvps });
   } catch (error) {
-    console.error("Error RSVPing to event:", error);
+    console.error("Error RSVPing to event:", error.message);
     res.status(500).json({ message: "Server error" });
   }
 };

@@ -1,4 +1,4 @@
-// server/models/commentModel.js
+// server/models/forumCommentModel.js
 import mongoose from "mongoose";
 
 const commentSchema = new mongoose.Schema(

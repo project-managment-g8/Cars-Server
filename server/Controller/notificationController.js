@@ -7,6 +7,7 @@ const getNotifications = async (req, res) => {
       .populate("sender", "userName")
       .populate("post", "content")
       .populate("forumPost", "title")
+      .populate("event", "title")
       .populate("comment", "content")
       .sort({ createdAt: -1 });
     console.log(notifications);

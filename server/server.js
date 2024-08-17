@@ -7,8 +7,10 @@ import userRoutes from "./routes/userRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
-import commentRoutes from "./routes/commentRoutes.js";
+import eventCommentRoutes from "./routes/eventCommentRoutes.js";
+import forumCommentRoutes from "./routes/forumcommentRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import "./scheduleJobs/eventReminder.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import dotenv from "dotenv";
 import path from "path";
@@ -20,14 +22,13 @@ import { GridFsStorage } from "multer-gridfs-storage";
 
 dotenv.config();
 const corsOptions = {
-  origin: "https://cars-client.onrender.com", // Your client URL
+  origin: "https://cars-client.onrender.com",
   credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 };
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 const port = process.env.PORT || 5001;
 const app = express();
-
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(cors(corsOptions));
@@ -76,12 +77,12 @@ app.post("/upload", protect, upload.single("image"), (req, res) => {
   console.log(`File uploaded: ${req.file.filename}`);
   res.json({ filePath: req.file.filename });
 });
-
 // Route to fetch images from GridFS
 app.use("/api/uploads", imageRoutes);
 app.use("/api/forum", forumRoutes);
 app.use("/api/events", eventRoutes);
-app.use("/api/comments", commentRoutes);
+app.use("/api/forumComments", forumCommentRoutes);
+app.use("/api/eventComments", eventCommentRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/posts", postRoutes);
