@@ -25,7 +25,7 @@ cd server
 Install dependencies:
 
 ```bash
-      npm install
+      npm install --legacy-peer-deps
 ```
 
 Start the development server:
