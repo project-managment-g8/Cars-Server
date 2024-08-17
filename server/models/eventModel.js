@@ -25,6 +25,12 @@ const eventSchema = new mongoose.Schema(
     },
     rsvps: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "eventComment" }],
+    ratings: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        rating: { type: Number, required: true },
+      },
+    ], // Add this line
   },
   {
     timestamps: true,

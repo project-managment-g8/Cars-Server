@@ -9,6 +9,12 @@ const forumPostSchema = new mongoose.Schema(
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Add this line
     is_sticky: { type: Boolean, default: false },
+    ratings: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        rating: { type: Number, required: true },
+      },
+    ],
   },
 
   { timestamps: true }

@@ -57,6 +57,55 @@ const getUserForumPosts = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+const rateForumPost = async (req, res) => {
+  try {
+    const { rating } = req.body;
+    const post = await ForumPost.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    if (!post.ratings) {
+      post.ratings = [];
+    }
+
+    // Check if the user has already rated the post
+    const existingRatingIndex = post.ratings.findIndex(
+      (rate) => rate.user.toString() === req.user._id.toString()
+    );
+
+    if (existingRatingIndex !== -1) {
+      // If the user has already rated, update the existing rating
+      post.ratings[existingRatingIndex].rating = rating;
+    } else {
+      // If the user has not rated, add a new rating
+      post.ratings.push({ user: req.user._id, rating });
+    }
+
+    const updatedPost = await post.save();
+
+    // Calculate the average rating
+    const averageRating =
+      post.ratings.reduce((acc, item) => acc + item.rating, 0) /
+      post.ratings.length;
+
+    const populatedPost = await ForumPost.findById(updatedPost._id)
+      .populate("user", "userName")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "user",
+          select: "userName",
+        },
+      });
+
+    res.json({ ...populatedPost.toObject(), averageRating });
+  } catch (error) {
+    console.error("Error rating forum post:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 const likeForumPost = async (req, res) => {
   try {
     const post = await ForumPost.findById(req.params.id);
@@ -79,7 +128,45 @@ const likeForumPost = async (req, res) => {
         });
       }
     }
+    const rateForumPost = async (req, res) => {
+      const { rating } = req.body;
 
+      try {
+        const post = await ForumPost.findById(req.params.id);
+
+        if (!post) {
+          return res.status(404).json({ message: "Post not found" });
+        }
+
+        // Check if the user has already rated the post
+        const existingRating = post.ratings.find(
+          (r) => r.user.toString() === req.user._id.toString()
+        );
+
+        if (existingRating) {
+          existingRating.rating = rating; // Update existing rating
+        } else {
+          post.ratings.push({ user: req.user._id, rating }); // Add new rating
+        }
+
+        await post.save();
+
+        const populatedPost = await ForumPost.findById(post._id)
+          .populate("user", "userName")
+          .populate({
+            path: "comments",
+            populate: {
+              path: "user",
+              select: "userName",
+            },
+          });
+
+        res.json(populatedPost);
+      } catch (error) {
+        console.error("Error rating forum post:", error);
+        res.status(500).json({ message: "Server error" });
+      }
+    };
     const updatedPost = await post.save();
     const populatedPost = await ForumPost.findById(updatedPost._id)
       .populate("user", "userName")
@@ -191,4 +278,5 @@ export {
   likeForumPost,
   getUserForumPosts,
   getLikedForumPosts,
+  rateForumPost,
 };
