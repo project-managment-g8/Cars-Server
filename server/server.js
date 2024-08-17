@@ -8,7 +8,7 @@ import feedbackRoutes from "./routes/feedbackRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
 import eventCommentRoutes from "./routes/eventCommentRoutes.js";
-import forumCommentRoutes from "./routes/forumcommentRoutes.js";
+import forumCommentRoutes from "./routes/forumCommentRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import "./scheduleJobs/eventReminder.js";
 import eventRoutes from "./routes/eventRoutes.js";
