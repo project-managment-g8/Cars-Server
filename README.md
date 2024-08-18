@@ -17,7 +17,6 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/project-managment-g8/Cars-Server
-cd server
 ```
 
 
